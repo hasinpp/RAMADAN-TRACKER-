@@ -3,73 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kuttan & Muthu Mani ❣️ | Ramadan Tracker</title>
+    <title>Kuttan & Muthu Mani ❣️ | Live Tracker</title>
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Poppins:wght@300;500&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
-        :root {
-            --gold: #C5A059;
-            --glow-gold: #FFD700;
-            --hifdh-color: #4CAF50;
-            --dark-bg: #050A18;
-            --card-bg: rgba(15, 23, 42, 0.9);
-            --text: #F0EAD6;
-        }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(rgba(5, 10, 24, 0.9), rgba(5, 10, 24, 0.9)), 
-                        url('https://images.unsplash.com/photo-1511739001486-6bfe10ce785f?q=80&w=1974&auto=format&fit=crop');
-            background-size: cover; background-attachment: fixed;
-            color: var(--text); margin: 0; display: flex; justify-content: center; min-height: 100vh;
-        }
-
+        :root { --gold: #C5A059; --glow-gold: #FFD700; --hifdh-color: #4CAF50; --dark-bg: #050A18; --card-bg: rgba(15, 23, 42, 0.9); --text: #F0EAD6; }
+        body { font-family: 'Poppins', sans-serif; background: linear-gradient(rgba(5, 10, 24, 0.9), rgba(5, 10, 24, 0.9)), url('https://images.unsplash.com/photo-1511739001486-6bfe10ce785f?q=80&w=1974&auto=format&fit=crop'); background-size: cover; background-attachment: fixed; color: var(--text); margin: 0; display: flex; justify-content: center; min-height: 100vh; }
         .container { width: 100%; max-width: 500px; padding: 20px; }
-
         #user-selection { text-align: center; margin-top: 50px; }
-        .user-card {
-            background: var(--card-bg); border: 1px solid var(--gold);
-            padding: 30px; margin: 20px 0; border-radius: 15px;
-            cursor: pointer; font-size: 1.5rem; color: var(--gold); font-family: 'Amiri', serif;
-        }
-
+        .user-card { background: var(--card-bg); border: 1px solid var(--gold); padding: 30px; margin: 20px 0; border-radius: 15px; cursor: pointer; font-size: 1.5rem; color: var(--gold); font-family: 'Amiri', serif; }
         #tracker-ui { display: none; }
         header { text-align: center; margin-bottom: 10px; }
-        h1 { font-family: 'Amiri', serif; color: var(--gold); font-size: 2rem; margin: 0; }
-
+        h1 { font-family: 'Amiri', serif; color: var(--gold); font-size: 2rem; }
         .prog-label { font-size: 0.8rem; color: var(--gold); margin: 5px 0 2px 0; display: block; text-align: left; }
-        .progress-container {
-            background: rgba(255, 255, 255, 0.1); border-radius: 10px;
-            height: 22px; margin-bottom: 10px; position: relative; overflow: hidden; border: 1px solid var(--gold);
-        }
-        .fill { height: 100%; transition: width 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); width: 0%; }
+        .progress-container { background: rgba(255, 255, 255, 0.1); border-radius: 10px; height: 22px; margin-bottom: 10px; position: relative; overflow: hidden; border: 1px solid var(--gold); }
+        .fill { height: 100%; transition: width 0.6s ease; width: 0%; }
         #progress-fill { background: linear-gradient(90deg, var(--gold), var(--glow-gold)); }
         #hifdh-fill { background: linear-gradient(90deg, #2e7d32, var(--hifdh-color)); }
-        
-        .progress-text {
-            position: absolute; width: 100%; text-align: center; font-size: 0.75rem;
-            line-height: 22px; font-weight: bold; color: white; text-shadow: 1px 1px 2px black;
-        }
-
-        select {
-            background: var(--card-bg); color: var(--gold); border: 1px solid var(--gold);
-            padding: 12px; border-radius: 8px; width: 100%; margin-bottom: 20px; font-size: 1rem; outline: none;
-        }
-
-        .task-card {
-            background: var(--card-bg); border-radius: 12px; padding: 15px;
-            margin-bottom: 15px; border-left: 4px solid var(--gold);
-        }
+        .progress-text { position: absolute; width: 100%; text-align: center; font-size: 0.75rem; line-height: 22px; font-weight: bold; color: white; }
+        select { background: var(--card-bg); color: var(--gold); border: 1px solid var(--gold); padding: 12px; border-radius: 8px; width: 100%; margin-bottom: 20px; font-size: 1rem; }
+        .task-card { background: var(--card-bg); border-radius: 12px; padding: 15px; margin-bottom: 15px; border-left: 4px solid var(--gold); }
         .special-card { border-left: 4px solid var(--glow-gold); background: rgba(197, 160, 89, 0.15); }
-        .task-card h3 { margin: 0 0 10px 0; color: var(--gold); font-size: 1.1rem; }
-
         .checkbox-row { display: flex; align-items: center; margin-bottom: 10px; }
-        input[type="checkbox"] { margin-right: 15px; width: 24px; height: 24px; accent-color: var(--gold); cursor: pointer;}
-        
-        input[type="text"], input[type="number"] {
-            width: 90%; background: rgba(255,255,255,0.05); border: 1px solid var(--gold);
-            color: white; padding: 12px; border-radius: 8px; margin-top: 5px; font-size: 1rem;
-        }
-
+        input[type="checkbox"] { margin-right: 15px; width: 24px; height: 24px; accent-color: var(--gold); }
+        input[type="text"], input[type="number"] { width: 90%; background: rgba(255,255,255,0.05); border: 1px solid var(--gold); color: white; padding: 12px; border-radius: 8px; margin-top: 5px; }
         .back-btn { background: none; border: none; color: var(--gold); text-decoration: underline; cursor: pointer; margin-bottom: 10px; }
     </style>
 </head>
@@ -77,32 +35,44 @@
 
 <div class="container">
     <div id="user-selection">
-        <h1>Ramadan Kareem</h1>
-        <div class="user-card" onclick="startTracker('Kuttan ❣️')">Kuttan ❣️</div>
-        <div class="user-card" onclick="startTracker('Muthu Mani ❣️')">Muthu Mani ❣️</div>
+        <h1>Ramadan Live 🌙</h1>
+        <div class="user-card" onclick="startTracker('Kuttan')">Kuttan ❣️</div>
+        <div class="user-card" onclick="startTracker('MuthuMani')">Muthu Mani ❣️</div>
     </div>
 
     <div id="tracker-ui">
-        <button class="back-btn" onclick="location.reload()">← Change User</button>
+        <button class="back-btn" onclick="location.reload()">← Switch User</button>
         <header>
             <h1 id="welcome-name"></h1>
-            <span class="prog-label">Daily Activities (Day <span id="dayNum">1</span>)</span>
+            <span class="prog-label">Daily Activities</span>
             <div class="progress-container"><div id="progress-fill" class="fill"></div><div class="progress-text" id="p-text">0%</div></div>
-            
-            <span class="prog-label">Overall Ramadan Hifdh Progress</span>
+            <span class="prog-label">Overall Hifdh Progress</span>
             <div class="progress-container"><div id="hifdh-fill" class="fill"></div><div class="progress-text" id="h-text">0%</div></div>
         </header>
 
         <select id="dayDropdown" onchange="switchDay(this.value)"></select>
-
         <div id="tasks-container"></div>
     </div>
 </div>
 
 <script>
+    // --- YOUR UPDATED CONFIG FROM PHOTO ---
+    const firebaseConfig = {
+        apiKey: "AIzaSyCk2FLQEAG8gP...", //
+        authDomain: "ramadan-tracker-6563c.firebaseapp.com", //
+        databaseURL: "https://ramadan-tracker-6563c-default-rtdb.firebaseio.com", 
+        projectId: "ramadan-tracker-6563c", //
+        storageBucket: "ramadan-tracker-6563c.appspot.com", //
+        messagingSenderId: "816106...", //
+        appId: "1:816100729886:web:..." //
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
     let currentUser = "";
     let currentDay = 1;
-    const totalCheckboxes = 21; 
+    const totalCheckboxes = 21;
 
     const prayers = [
         { name: 'Tahajjud', items: ['Performed'] },
@@ -119,7 +89,7 @@
         currentUser = user;
         document.getElementById('user-selection').style.display = 'none';
         document.getElementById('tracker-ui').style.display = 'block';
-        document.getElementById('welcome-name').innerText = user;
+        document.getElementById('welcome-name').innerText = user + " ❣️";
         
         const dropdown = document.getElementById('dayDropdown');
         for (let i = 1; i <= 30; i++) {
@@ -127,79 +97,59 @@
             dropdown.appendChild(opt);
         }
         buildInterface();
-        loadData();
+        listenToUpdates();
     }
 
     function buildInterface() {
         const container = document.getElementById('tasks-container');
         container.innerHTML = `
-            <div class="task-card special-card"><h3>📖 Quran Recitation</h3><input type="text" id="q-input" placeholder="Juz' / Pages..."></div>
-            <div class="task-card special-card"><h3>🧠 Total Hifdh Progress (%)</h3><input type="number" id="h-input" placeholder="Update your total % (0-100)"></div>
-            <div class="task-card special-card"><h3>📱 Screen Time</h3><input type="text" id="s-input" placeholder="e.g. 1h 30m"></div>
+            <div class="task-card special-card"><h3>📖 Quran Recitation</h3><input type="text" id="q-input" oninput="dbSave('quran', this.value)"></div>
+            <div class="task-card special-card"><h3>🧠 Total Hifdh %</h3><input type="number" id="h-input" oninput="dbSaveHifdh(this.value)"></div>
+            <div class="task-card special-card"><h3>📱 Screen Time</h3><input type="text" id="s-input" oninput="dbSave('screen', this.value)"></div>
         `;
-        
         prayers.forEach(group => {
             let card = document.createElement('div'); card.className = 'task-card';
             card.innerHTML = `<h3>${group.name}</h3>`;
             group.items.forEach(item => {
                 let id = `${group.name}-${item}`;
-                card.innerHTML += `<div class="checkbox-row"><input type="checkbox" class="task-check" data-id="${id}"><label>${item}</label></div>`;
+                card.innerHTML += `<div class="checkbox-row"><input type="checkbox" class="task-check" data-id="${id}" onchange="dbSave('${id}', this.checked)"><label>${item}</label></div>`;
             });
             container.appendChild(card);
         });
+    }
 
-        // Event Listeners for smooth typing
-        document.getElementById('q-input').oninput = (e) => saveDaily('quran', e.target.value);
-        document.getElementById('s-input').oninput = (e) => saveDaily('screen', e.target.value);
-        
-        // HIFDH SAVE: Saves to a global key (not day-specific)
-        document.getElementById('h-input').oninput = (e) => {
-            localStorage.setItem(`${currentUser}-total-hifdh`, e.target.value);
-            updateBars();
-        };
+    function switchDay(day) { currentDay = day; listenToUpdates(); }
 
-        document.querySelectorAll('.task-check').forEach(el => {
-            el.onchange = () => { saveDaily(el.dataset.id, el.checked); updateBars(); };
+    function dbSave(key, val) { db.ref(`${currentUser}/day${currentDay}/${key}`).set(val); }
+    function dbSaveHifdh(val) { db.ref(`${currentUser}/totalHifdh`).set(val); }
+
+    function listenToUpdates() {
+        db.ref(`${currentUser}/day${currentDay}`).on('value', (snapshot) => {
+            const data = snapshot.val() || {};
+            document.getElementById('q-input').value = data.quran || "";
+            document.getElementById('s-input').value = data.screen || "";
+            document.querySelectorAll('.task-check').forEach(el => {
+                el.checked = data[el.dataset.id] === true;
+            });
+            updateBars(data);
+        });
+        db.ref(`${currentUser}/totalHifdh`).on('value', (snapshot) => {
+            const hVal = snapshot.val() || 0;
+            document.getElementById('h-input').value = hVal;
+            const hPercent = Math.min(Math.max(hVal, 0), 100);
+            document.getElementById('hifdh-fill').style.width = hPercent + '%';
+            document.getElementById('h-text').innerText = hPercent + '% Total';
         });
     }
 
-    function switchDay(day) { 
-        currentDay = day; 
-        document.getElementById('dayNum').innerText = day;
-        loadData(); 
-    }
-
-    function saveDaily(key, val) {
-        localStorage.setItem(`${currentUser}-d${currentDay}-${key}`, val);
-    }
-
-    function loadData() {
-        // Daily Items
-        document.getElementById('q-input').value = localStorage.getItem(`${currentUser}-d${currentDay}-quran`) || "";
-        document.getElementById('s-input').value = localStorage.getItem(`${currentUser}-d${currentDay}-screen`) || "";
-        
-        // Hifdh Item (Global - Same for all 30 days)
-        document.getElementById('h-input').value = localStorage.getItem(`${currentUser}-total-hifdh`) || "";
-        
-        document.querySelectorAll('.task-check').forEach(el => {
-            el.checked = localStorage.getItem(`${currentUser}-d${currentDay}-${el.dataset.id}`) === 'true';
-        });
-        updateBars();
-    }
-
-    function updateBars() {
-        // Daily Activity Bar
-        let checked = document.querySelectorAll('.task-check:checked').length;
+    function updateBars(data) {
+        let checked = 0;
+        prayers.forEach(g => g.items.forEach(i => { if(data[`${g.name}-${i}`] === true) checked++; }));
         let p = Math.round((checked / totalCheckboxes) * 100);
         document.getElementById('progress-fill').style.width = p + '%';
         document.getElementById('p-text').innerText = p + '% Complete';
-
-        // Hifdh Bar (Global)
-        let hVal = document.getElementById('h-input').value || 0;
-        let hPercent = Math.min(Math.max(hVal, 0), 100);
-        document.getElementById('hifdh-fill').style.width = hPercent + '%';
-        document.getElementById('h-text').innerText = hPercent + '% Total Journey';
     }
 </script>
 </body>
 </html>
+Adding Firebase Sync
