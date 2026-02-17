@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HASIN & Muthu Mani ❣️ | Ramadan Tracker</title>
+    <title>Kuttan & Muthu Mani ❣️ | Ramadan Tracker</title>
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Poppins:wght@300;500&display=swap" rel="stylesheet">
     <style>
         :root {
             --gold: #C5A059;
             --glow-gold: #FFD700;
+            --hifdh-color: #4CAF50;
             --dark-bg: #050A18;
             --card-bg: rgba(15, 23, 42, 0.9);
             --text: #F0EAD6;
@@ -29,7 +30,6 @@
 
         .container { width: 100%; max-width: 500px; padding: 20px; }
 
-        /* User Selection Screen */
         #user-selection { text-align: center; margin-top: 50px; }
         .user-card {
             background: var(--card-bg);
@@ -43,45 +43,36 @@
             color: var(--gold);
             font-family: 'Amiri', serif;
         }
-        .user-card:hover { box-shadow: 0 0 15px var(--gold); }
 
-        /* Tracker UI */
         #tracker-ui { display: none; }
         header { text-align: center; margin-bottom: 10px; }
         h1 { font-family: 'Amiri', serif; color: var(--gold); font-size: 2rem; margin-bottom: 5px; }
 
-        /* Progress Bar */
+        .prog-label { font-size: 0.8rem; color: var(--gold); margin-bottom: 2px; display: block; text-align: left; }
         .progress-container {
             background: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
-            height: 25px;
-            margin: 15px 0;
+            height: 20px;
+            margin-bottom: 10px;
             position: relative;
             overflow: hidden;
             border: 1px solid var(--gold);
         }
-        #progress-fill {
-            background: linear-gradient(90deg, var(--gold), var(--glow-gold));
-            height: 100%;
-            width: 0%;
-            transition: width 0.5s ease;
-        }
+        .fill { height: 100%; transition: width 0.5s ease; width: 0%; }
+        #progress-fill { background: linear-gradient(90deg, var(--gold), var(--glow-gold)); }
+        #hifdh-fill { background: linear-gradient(90deg, #2e7d32, var(--hifdh-color)); }
+        
         .progress-text {
             position: absolute;
             width: 100%;
             text-align: center;
-            font-size: 0.8rem;
-            line-height: 25px;
+            font-size: 0.7rem;
+            line-height: 20px;
             font-weight: bold;
             color: white;
             text-shadow: 1px 1px 2px black;
         }
 
-        /* Dropdown Styling */
-        .selector-box {
-            margin-bottom: 20px;
-            text-align: center;
-        }
         select {
             background: var(--card-bg);
             color: var(--gold);
@@ -89,8 +80,7 @@
             padding: 10px;
             border-radius: 8px;
             width: 100%;
-            font-size: 1rem;
-            outline: none;
+            margin-bottom: 20px;
         }
 
         .task-card {
@@ -100,41 +90,22 @@
             margin-bottom: 15px;
             border-left: 4px solid var(--gold);
         }
-        .quran-card {
-            border-left: 4px solid var(--glow-gold);
-            background: rgba(197, 160, 89, 0.15);
-        }
+        .special-card { border-left: 4px solid var(--glow-gold); background: rgba(197, 160, 89, 0.1); }
         .task-card h3 { margin: 0 0 10px 0; color: var(--gold); font-size: 1.1rem; }
 
-        .checkbox-row {
-            display: flex;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-        input[type="checkbox"] {
-            margin-right: 12px;
-            width: 20px;
-            height: 20px;
-            accent-color: var(--gold);
-        }
-
-        input[type="text"] {
+        .checkbox-row { display: flex; align-items: center; margin-bottom: 8px; }
+        input[type="checkbox"] { margin-right: 12px; width: 20px; height: 20px; accent-color: var(--gold); }
+        input[type="text"], input[type="number"] {
             width: 90%;
             background: rgba(255,255,255,0.1);
             border: 1px solid var(--gold);
             color: white;
             padding: 10px;
             border-radius: 5px;
+            margin-top: 5px;
         }
 
-        .back-btn {
-            background: none;
-            border: none;
-            color: var(--gold);
-            cursor: pointer;
-            text-decoration: underline;
-            margin-bottom: 10px;
-        }
+        .back-btn { background: none; border: none; color: var(--gold); text-decoration: underline; margin-bottom: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -143,7 +114,7 @@
     <div id="user-selection">
         <h1>Ramadan Kareem</h1>
         <p>Who is tracking today?</p>
-        <div class="user-card" onclick="startTracker('HASIN')">HASIN</div>
+        <div class="user-card" onclick="startTracker('Kuttan ❣️')">Kuttan ❣️</div>
         <div class="user-card" onclick="startTracker('Muthu Mani ❣️')">Muthu Mani ❣️</div>
     </div>
 
@@ -151,16 +122,19 @@
         <button class="back-btn" onclick="location.reload()">← Change User</button>
         <header>
             <h1 id="welcome-name"></h1>
+            <span class="prog-label">Daily Activities Completion</span>
             <div class="progress-container">
-                <div id="progress-fill"></div>
-                <div class="progress-text" id="progress-percent">0% Completed</div>
+                <div id="progress-fill" class="fill"></div>
+                <div class="progress-text" id="progress-percent">0%</div>
+            </div>
+            <span class="prog-label">Hifdh Goal Progress</span>
+            <div class="progress-container">
+                <div id="hifdh-fill" class="fill"></div>
+                <div class="progress-text" id="hifdh-percent">0%</div>
             </div>
         </header>
 
-        <div class="selector-box">
-            <select id="dayDropdown" onchange="switchDay(this.value)">
-                </select>
-        </div>
+        <select id="dayDropdown" onchange="switchDay(this.value)"></select>
 
         <div id="tasks-container"></div>
     </div>
@@ -195,69 +169,85 @@
         const dropdown = document.getElementById('dayDropdown');
         for (let i = 1; i <= 30; i++) {
             const opt = document.createElement('option');
-            opt.value = i;
-            opt.innerText = `Ramadan Day ${i}`;
+            opt.value = i; opt.innerText = `Ramadan Day ${i}`;
             dropdown.appendChild(opt);
         }
     }
 
-    function switchDay(day) {
-        currentDay = day;
-        render();
-    }
+    function switchDay(day) { currentDay = day; render(); }
 
     function render() {
         const container = document.getElementById('tasks-container');
         container.innerHTML = '';
         let checkedCount = 0;
 
-        // QURAN AT THE TOP
+        // QURAN SECTION
         const qId = `${currentUser}-d${currentDay}-quran`;
         const qVal = localStorage.getItem(qId) || "";
         const qCard = document.createElement('div');
-        qCard.className = 'task-card quran-card';
+        qCard.className = 'task-card special-card';
         qCard.innerHTML = `<h3>📖 Quran Recitation</h3>
-            <input type="text" id="quran-input" placeholder="Juz' or Pages read today..." value="${qVal}" oninput="saveData('${qId}', this.value)">`;
+            <input type="text" placeholder="Juz' or Pages read..." value="${qVal}" oninput="saveData('${qId}', this.value)">`;
         container.appendChild(qCard);
 
-        // PRAYERS & ADKAR
+        // HIFDH SECTION
+        const hId = `${currentUser}-d${currentDay}-hifdh`;
+        const hVal = localStorage.getItem(hId) || 0;
+        const hCard = document.createElement('div');
+        hCard.className = 'task-card special-card';
+        hCard.innerHTML = `<h3>🧠 Hifdh Activity</h3>
+            <label style="font-size:0.8rem">Today's Progress (%)</label>
+            <input type="number" min="0" max="100" placeholder="Enter % (e.g. 50)" value="${hVal}" oninput="saveHifdh('${hId}', this.value)">`;
+        container.appendChild(hCard);
+
+        // PRAYERS
         structure.forEach(group => {
             const card = document.createElement('div');
             card.className = 'task-card';
             card.innerHTML = `<h3>${group.name}</h3>`;
-            
             group.items.forEach(item => {
                 const id = `${currentUser}-d${currentDay}-${group.name}-${item}`;
                 const isChecked = localStorage.getItem(id) === 'true';
                 if(isChecked) checkedCount++;
-                
-                const row = document.createElement('div');
-                row.className = 'checkbox-row';
-                row.innerHTML = `
-                    <input type="checkbox" id="${id}" ${isChecked ? 'checked' : ''} 
-                        onchange="saveData('${id}', this.checked)">
+                card.innerHTML += `<div class="checkbox-row">
+                    <input type="checkbox" id="${id}" ${isChecked ? 'checked' : ''} onchange="saveData('${id}', this.checked)">
                     <label>${item}</label>
-                `;
-                card.appendChild(row);
+                </div>`;
             });
             container.appendChild(card);
         });
 
-        updateProgress(checkedCount);
+        // SCREEN TIME
+        const sId = `${currentUser}-d${currentDay}-screen`;
+        const sVal = localStorage.getItem(sId) || "";
+        const sCard = document.createElement('div');
+        sCard.className = 'task-card';
+        sCard.innerHTML = `<h3>📱 Screen Time</h3>
+            <input type="text" placeholder="e.g. 2 hours" value="${sVal}" oninput="saveData('${sId}', this.value)">`;
+        container.appendChild(sCard);
+
+        updateProgress(checkedCount, hVal);
     }
 
     function saveData(id, val) {
         localStorage.setItem(id, val);
-        if (id.includes('quran')) return; // Typing in Quran box doesn't affect %
         render();
     }
 
-    function updateProgress(count) {
+    function saveHifdh(id, val) {
+        localStorage.setItem(id, val);
+        render();
+    }
+
+    function updateProgress(count, hifdhVal) {
         const percent = Math.round((count / totalCheckboxes) * 100);
         document.getElementById('progress-fill').style.width = percent + '%';
-        document.getElementById('progress-percent').innerText = percent + '% Completed';
+        document.getElementById('progress-percent').innerText = percent + '% Complete';
+
+        const hPercent = Math.min(Math.max(hifdhVal, 0), 100);
+        document.getElementById('hifdh-fill').style.width = hPercent + '%';
+        document.getElementById('hifdh-percent').innerText = hPercent + '% Target';
     }
 </script>
-
 </body>
 </html>
