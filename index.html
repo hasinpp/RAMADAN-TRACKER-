@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HASIN & Muthu Mani ❣️ | Ramadan Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold: #D4AF37;
+            --deep-blue: #0A192F;
+            --dusty-rose: #AC7088;
+            --white: #F9F7F2;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(rgba(10, 25, 47, 0.8), rgba(10, 25, 47, 0.8)), 
+                        url('https://images.unsplash.com/photo-1564115484-a4ace8286ca1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80');
+            background-size: cover;
+            background-attachment: fixed;
+            color: var(--white);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid var(--gold);
+        }
+
+        header {
+            text-align: center;
+            border-bottom: 2px solid var(--gold);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        h1 { font-family: 'Amiri', serif; color: var(--gold); font-size: 2.5rem; margin: 0; }
+        .names { font-size: 1.2rem; font-style: italic; margin-top: 10px; }
+
+        .day-selector {
+            display: flex;
+            overflow-x: auto;
+            gap: 10px;
+            padding: 10px 0;
+            margin-bottom: 20px;
+        }
+
+        .day-btn {
+            background: transparent;
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            padding: 8px 15px;
+            border-radius: 50px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .day-btn.active { background: var(--gold); color: var(--deep-blue); font-weight: bold; }
+
+        .tracker-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .user-column {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .user-column h2 { color: var(--gold); border-bottom: 1px solid rgba(212, 175, 55, 0.3); }
+
+        .task-group { margin-bottom: 15px; }
+        .task-group h3 { font-size: 1rem; color: var(--dusty-rose); margin-bottom: 5px; }
+
+        .check-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        input[type="checkbox"] {
+            margin-right: 10px;
+            accent-color: var(--gold);
+            width: 18px;
+            height: 18px;
+        }
+
+        input[type="text"] {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--gold);
+            color: white;
+            padding: 5px;
+            width: 100%;
+            border-radius: 5px;
+        }
+
+        @media (max-width: 600px) {
+            .tracker-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Ramadan Kareem</h1>
+        <div class="names">HASIN & Muthu Mani ❣️</div>
+    </header>
+
+    <div class="day-selector" id="daySelector">
+        </div>
+
+    <div class="tracker-grid">
+        <div class="user-column" id="hasin-col">
+            <h2>HASIN</h2>
+            <div id="tasks-hasin"></div>
+        </div>
+
+        <div class="user-column" id="muthu-col">
+            <h2>Muthu Mani ❣️</h2>
+            <div id="tasks-muthu"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const users = ['hasin', 'muthu'];
+    const prayerData = [
+        { name: 'Tahajjud', items: ['Performed'] },
+        { name: 'Subh', items: ['Fardh', 'Sunnah', 'Adkar', 'Dua'] },
+        { name: 'Duhr', items: ['Fardh', 'Sunnah', 'Adkar', 'Dua'] },
+        { name: 'Asr', items: ['Fardh', 'Adkar', 'Dua'] },
+        { name: 'Magrib', items: ['Fardh', 'Sunnah', 'Adkar', 'Dua'] },
+        { name: 'Isha', items: ['Fardh', 'Sunnah', 'Adkar', 'Dua'] },
+        { name: 'Tharaweeh', items: ['Performed'] },
+        { name: 'Daily Adkar', items: ['Morning Adkar', 'Evening Adkar'] }
+    ];
+
+    let currentDay = 1;
+
+    // Initialize Days
+    const daySelector = document.getElementById('daySelector');
+    for (let i = 1; i <= 30; i++) {
+        const btn = document.createElement('button');
+        btn.innerText = `Day ${i}`;
+        btn.className = `day-btn ${i === 1 ? 'active' : ''}`;
+        btn.onclick = () => switchDay(i);
+        daySelector.appendChild(btn);
+    }
+
+    function switchDay(day) {
+        currentDay = day;
+        document.querySelectorAll('.day-btn').forEach((btn, idx) => {
+            btn.className = `day-btn ${idx + 1 === day ? 'active' : ''}`;
+        });
+        renderTasks();
+    }
+
+    function renderTasks() {
+        users.forEach(user => {
+            const container = document.getElementById(`tasks-${user}`);
+            container.innerHTML = '';
+
+            prayerData.forEach(group => {
+                const groupDiv = document.createElement('div');
+                groupDiv.className = 'task-group';
+                groupDiv.innerHTML = `<h3>${group.name}</h3>`;
+                
+                group.items.forEach(item => {
+                    const id = `${user}-day${currentDay}-${group.name}-${item}`;
+                    const checked = localStorage.getItem(id) === 'true' ? 'checked' : '';
+                    groupDiv.innerHTML += `
+                        <div class="check-item">
+                            <input type="checkbox" id="${id}" ${checked} onchange="save('${id}', this.checked)">
+                            <label>${item}</label>
+                        </div>
+                    `;
+                });
+                container.appendChild(groupDiv);
+            });
+
+            // Quran Section
+            const quranId = `${user}-day${currentDay}-quran`;
+            const quranVal = localStorage.getItem(quranId) || '';
+            const quranDiv = document.createElement('div');
+            quranDiv.className = 'task-group';
+            quranDiv.innerHTML = `
+                <h3>Quran Recitation</h3>
+                <input type="text" id="${quranId}" placeholder="Juz' / Pages" value="${quranVal}" oninput="save('${quranId}', this.value)">
+            `;
+            container.appendChild(quranDiv);
+        });
+    }
+
+    function save(id, value) {
+        localStorage.setItem(id, value);
+    }
+
+    renderTasks();
+</script>
+
+</body>
+</html>
