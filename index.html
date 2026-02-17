@@ -120,4 +120,135 @@
     </div>
 
     <div id="tracker-ui">
-        <button class="back-btn" onclick="location.reload()">← Change
+        <button class="back-btn" onclick="location.reload()">← Change User</button>
+        <header>
+            <h1 id="welcome-name"></h1>
+            <span class="prog-label">Daily Activities Completion</span>
+            <div class="progress-container">
+                <div id="progress-fill" class="fill"></div>
+                <div class="progress-text" id="progress-percent">0%</div>
+            </div>
+            <span class="prog-label">Hifdh Goal Progress</span>
+            <div class="progress-container">
+                <div id="hifdh-fill" class="fill"></div>
+                <div class="progress-text" id="hifdh-percent">0%</div>
+            </div>
+        </header>
+
+        <select id="dayDropdown" onchange="switchDay(this.value)"></select>
+
+        <div id="tasks-container"></div>
+    </div>
+</div>
+
+<script>
+    let currentUser = "";
+    let currentDay = 1;
+    const totalCheckboxes = 21; 
+
+    const structure = [
+        { name: 'Tahajjud', items: ['Performed'] },
+        { name: 'Subh', items: ['Fardh', 'Sunnah', 'Adkar', 'Dua'] },
+        { name: 'Duhr', items: ['Fardh', 'Sunnah', 'Adkar', 'Dua'] },
+        { name: 'Asr', items: ['Fardh', 'Adkar', 'Dua'] },
+        { name: 'Magrib', items: ['Fardh', 'Sunnah', 'Adkar', 'Dua'] },
+        { name: 'Isha', items: ['Fardh', 'Sunnah', 'Adkar', 'Dua'] },
+        { name: 'Tharaweeh', items: ['Performed'] },
+        { name: 'Adhkar', items: ['Morning Adhkar', 'Evening Adhkar'] }
+    ];
+
+    function startTracker(user) {
+        currentUser = user;
+        document.getElementById('user-selection').style.display = 'none';
+        document.getElementById('tracker-ui').style.display = 'block';
+        document.getElementById('welcome-name').innerText = user;
+        fillDropdown();
+        render();
+    }
+
+    function fillDropdown() {
+        const dropdown = document.getElementById('dayDropdown');
+        for (let i = 1; i <= 30; i++) {
+            const opt = document.createElement('option');
+            opt.value = i; opt.innerText = `Ramadan Day ${i}`;
+            dropdown.appendChild(opt);
+        }
+    }
+
+    function switchDay(day) { currentDay = day; render(); }
+
+    function render() {
+        const container = document.getElementById('tasks-container');
+        container.innerHTML = '';
+        let checkedCount = 0;
+
+        // 1. QURAN RECITATION (TOP)
+        const qId = `${currentUser}-d${currentDay}-quran`;
+        const qVal = localStorage.getItem(qId) || "";
+        const qCard = document.createElement('div');
+        qCard.className = 'task-card special-card';
+        qCard.innerHTML = `<h3>📖 Quran Recitation</h3>
+            <input type="text" placeholder="Juz' or Pages read today..." value="${qVal}" oninput="saveData('${qId}', this.value)">`;
+        container.appendChild(qCard);
+
+        // 2. HIFDH ACTIVITY
+        const hId = `${currentUser}-d${currentDay}-hifdh`;
+        const hVal = localStorage.getItem(hId) || 0;
+        const hCard = document.createElement('div');
+        hCard.className = 'task-card special-card';
+        hCard.innerHTML = `<h3>🧠 Hifdh Activity</h3>
+            <label style="font-size:0.8rem">Today's Progress (%)</label>
+            <input type="number" min="0" max="100" placeholder="Enter % (e.g. 75)" value="${hVal}" oninput="saveHifdh('${hId}', this.value)">`;
+        container.appendChild(hCard);
+
+        // 3. SCREEN TIME (NOW UNDER HIFDH)
+        const sId = `${currentUser}-d${currentDay}-screen`;
+        const sVal = localStorage.getItem(sId) || "";
+        const sCard = document.createElement('div');
+        sCard.className = 'task-card special-card';
+        sCard.innerHTML = `<h3>📱 Screen Time</h3>
+            <input type="text" placeholder="e.g. 1h 30m" value="${sVal}" oninput="saveData('${sId}', this.value)">`;
+        container.appendChild(sCard);
+
+        // 4. PRAYERS & ADKAR
+        structure.forEach(group => {
+            const card = document.createElement('div');
+            card.className = 'task-card';
+            card.innerHTML = `<h3>${group.name}</h3>`;
+            group.items.forEach(item => {
+                const id = `${currentUser}-d${currentDay}-${group.name}-${item}`;
+                const isChecked = localStorage.getItem(id) === 'true';
+                if(isChecked) checkedCount++;
+                card.innerHTML += `<div class="checkbox-row">
+                    <input type="checkbox" id="${id}" ${isChecked ? 'checked' : ''} onchange="saveData('${id}', this.checked)">
+                    <label>${item}</label>
+                </div>`;
+            });
+            container.appendChild(card);
+        });
+
+        updateProgress(checkedCount, hVal);
+    }
+
+    function saveData(id, val) {
+        localStorage.setItem(id, val);
+        render();
+    }
+
+    function saveHifdh(id, val) {
+        localStorage.setItem(id, val);
+        render();
+    }
+
+    function updateProgress(count, hifdhVal) {
+        const percent = Math.round((count / totalCheckboxes) * 100);
+        document.getElementById('progress-fill').style.width = percent + '%';
+        document.getElementById('progress-percent').innerText = percent + '% Complete';
+
+        const hPercent = Math.min(Math.max(hifdhVal, 0), 100);
+        document.getElementById('hifdh-fill').style.width = hPercent + '%';
+        document.getElementById('hifdh-percent').innerText = hPercent + '% Goal Reached';
+    }
+</script>
+</body>
+</html>
