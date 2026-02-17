@@ -103,4 +103,89 @@
     let currentDay = 1;
     const totalCheckboxes = 21; 
 
-    const
+    const prayers = [
+        { name: 'Tahajjud', items: ['Performed'] },
+        { name: 'Subh', items: ['Fardh', 'Sunnah', 'Adkar', 'Dua'] },
+        { name: 'Duhr', items: ['Fardh', 'Sunnah', 'Adkar', 'Dua'] },
+        { name: 'Asr', items: ['Fardh', 'Adkar', 'Dua'] },
+        { name: 'Magrib', items: ['Fardh', 'Sunnah', 'Adkar', 'Dua'] },
+        { name: 'Isha', items: ['Fardh', 'Sunnah', 'Adkar', 'Dua'] },
+        { name: 'Tharaweeh', items: ['Performed'] },
+        { name: 'Adhkar', items: ['Morning Adhkar', 'Evening Adhkar'] }
+    ];
+
+    function startTracker(user) {
+        currentUser = user;
+        document.getElementById('user-selection').style.display = 'none';
+        document.getElementById('tracker-ui').style.display = 'block';
+        document.getElementById('welcome-name').innerText = user;
+        
+        const dropdown = document.getElementById('dayDropdown');
+        for (let i = 1; i <= 30; i++) {
+            let opt = document.createElement('option'); opt.value = i; opt.innerText = `Ramadan Day ${i}`;
+            dropdown.appendChild(opt);
+        }
+        buildInterface(); // Build the boxes only ONCE
+        loadData();
+    }
+
+    function buildInterface() {
+        const container = document.getElementById('tasks-container');
+        container.innerHTML = `
+            <div class="task-card special-card"><h3>📖 Quran Recitation</h3><input type="text" id="q-input" placeholder="Juz' / Pages..."></div>
+            <div class="task-card special-card"><h3>🧠 Hifdh Activity</h3><input type="number" id="h-input" placeholder="Enter % (0-100)"></div>
+            <div class="task-card special-card"><h3>📱 Screen Time</h3><input type="text" id="s-input" placeholder="e.g. 1h 30m"></div>
+        `;
+        
+        prayers.forEach(group => {
+            let card = document.createElement('div'); card.className = 'task-card';
+            card.innerHTML = `<h3>${group.name}</h3>`;
+            group.items.forEach(item => {
+                let id = `${group.name}-${item}`;
+                card.innerHTML += `<div class="checkbox-row"><input type="checkbox" class="task-check" data-id="${id}"><label>${item}</label></div>`;
+            });
+            container.appendChild(card);
+        });
+
+        // Add Event Listeners so we don't need to refresh the page
+        document.getElementById('q-input').oninput = (e) => save('quran', e.target.value);
+        document.getElementById('s-input').oninput = (e) => save('screen', e.target.value);
+        document.getElementById('h-input').oninput = (e) => { save('hifdh', e.target.value); updateBars(); };
+        document.querySelectorAll('.task-check').forEach(el => {
+            el.onchange = () => { save(el.dataset.id, el.checked); updateBars(); };
+        });
+    }
+
+    function switchDay(day) { currentDay = day; loadData(); }
+
+    function save(key, val) {
+        localStorage.setItem(`${currentUser}-d${currentDay}-${key}`, val);
+    }
+
+    function loadData() {
+        // Just fill the existing boxes with data, don't delete them!
+        document.getElementById('q-input').value = localStorage.getItem(`${currentUser}-d${currentDay}-quran`) || "";
+        document.getElementById('h-input').value = localStorage.getItem(`${currentUser}-d${currentDay}-hifdh`) || "";
+        document.getElementById('s-input').value = localStorage.getItem(`${currentUser}-d${currentDay}-screen`) || "";
+        
+        document.querySelectorAll('.task-check').forEach(el => {
+            el.checked = localStorage.getItem(`${currentUser}-d${currentDay}-${el.dataset.id}`) === 'true';
+        });
+        updateBars();
+    }
+
+    function updateBars() {
+        let checked = document.querySelectorAll('.task-check:checked').length;
+        let hVal = document.getElementById('h-input').value || 0;
+        
+        let p = Math.round((checked / totalCheckboxes) * 100);
+        document.getElementById('progress-fill').style.width = p + '%';
+        document.getElementById('p-text').innerText = p + '% Complete';
+
+        let h = Math.min(Math.max(hVal, 0), 100);
+        document.getElementById('hifdh-fill').style.width = h + '%';
+        document.getElementById('h-text').innerText = h + '% Goal';
+    }
+</script>
+</body>
+</html>
