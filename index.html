@@ -182,13 +182,13 @@
         container.innerHTML = '';
         let checkedCount = 0;
 
-        // 1. QURAN RECITATION (TOP)
+        // 1. QURAN RECITATION
         const qId = `${currentUser}-d${currentDay}-quran`;
         const qVal = localStorage.getItem(qId) || "";
         const qCard = document.createElement('div');
         qCard.className = 'task-card special-card';
         qCard.innerHTML = `<h3>📖 Quran Recitation</h3>
-            <input type="text" placeholder="Juz' or Pages read today..." value="${qVal}" oninput="saveData('${qId}', this.value)">`;
+            <input type="text" placeholder="Juz' or Pages read..." value="${qVal}" oninput="saveData('${qId}', this.value)">`;
         container.appendChild(qCard);
 
         // 2. HIFDH ACTIVITY
@@ -198,19 +198,19 @@
         hCard.className = 'task-card special-card';
         hCard.innerHTML = `<h3>🧠 Hifdh Activity</h3>
             <label style="font-size:0.8rem">Today's Progress (%)</label>
-            <input type="number" min="0" max="100" placeholder="Enter % (e.g. 75)" value="${hVal}" oninput="saveHifdh('${hId}', this.value)">`;
+            <input type="number" min="0" max="100" placeholder="e.g. 80" value="${hVal}" oninput="saveHifdh('${hId}', this.value)">`;
         container.appendChild(hCard);
 
-        // 3. SCREEN TIME (NOW UNDER HIFDH)
+        // 3. SCREEN TIME (UNDER HIFDH)
         const sId = `${currentUser}-d${currentDay}-screen`;
         const sVal = localStorage.getItem(sId) || "";
         const sCard = document.createElement('div');
         sCard.className = 'task-card special-card';
         sCard.innerHTML = `<h3>📱 Screen Time</h3>
-            <input type="text" placeholder="e.g. 1h 30m" value="${sVal}" oninput="saveData('${sId}', this.value)">`;
+            <input type="text" placeholder="e.g. 2h 15m" value="${sVal}" oninput="saveData('${sId}', this.value)">`;
         container.appendChild(sCard);
 
-        // 4. PRAYERS & ADKAR
+        // 4. PRAYERS
         structure.forEach(group => {
             const card = document.createElement('div');
             card.className = 'task-card';
