@@ -188,7 +188,7 @@
         const qCard = document.createElement('div');
         qCard.className = 'task-card special-card';
         qCard.innerHTML = `<h3>📖 Quran Recitation</h3>
-            <input type="text" placeholder="Juz' or Pages read..." value="${qVal}" oninput="saveData('${qId}', this.value)">`;
+            <input type="text" placeholder="Juz' or Pages read..." value="${qVal}" oninput="quickSave('${qId}', this.value)">`;
         container.appendChild(qCard);
 
         // 2. HIFDH ACTIVITY
@@ -198,16 +198,16 @@
         hCard.className = 'task-card special-card';
         hCard.innerHTML = `<h3>🧠 Hifdh Activity</h3>
             <label style="font-size:0.8rem">Today's Progress (%)</label>
-            <input type="number" min="0" max="100" placeholder="e.g. 80" value="${hVal}" oninput="saveHifdh('${hId}', this.value)">`;
+            <input type="number" min="0" max="100" placeholder="e.g. 80" value="${hVal}" oninput="saveHifdhLive('${hId}', this.value)">`;
         container.appendChild(hCard);
 
-        // 3. SCREEN TIME (UNDER HIFDH)
+        // 3. SCREEN TIME
         const sId = `${currentUser}-d${currentDay}-screen`;
         const sVal = localStorage.getItem(sId) || "";
         const sCard = document.createElement('div');
         sCard.className = 'task-card special-card';
         sCard.innerHTML = `<h3>📱 Screen Time</h3>
-            <input type="text" placeholder="e.g. 2h 15m" value="${sVal}" oninput="saveData('${sId}', this.value)">`;
+            <input type="text" placeholder="e.g. 2h 15m" value="${sVal}" oninput="quickSave('${sId}', this.value)">`;
         container.appendChild(sCard);
 
         // 4. PRAYERS
@@ -220,34 +220,43 @@
                 const isChecked = localStorage.getItem(id) === 'true';
                 if(isChecked) checkedCount++;
                 card.innerHTML += `<div class="checkbox-row">
-                    <input type="checkbox" id="${id}" ${isChecked ? 'checked' : ''} onchange="saveData('${id}', this.checked)">
+                    <input type="checkbox" id="${id}" ${isChecked ? 'checked' : ''} onchange="saveDataCheckbox('${id}', this.checked)">
                     <label>${item}</label>
                 </div>`;
             });
             container.appendChild(card);
         });
 
-        updateProgress(checkedCount, hVal);
+        updateProgressBars(checkedCount, hVal);
     }
 
-    function saveData(id, val) {
+    // Special functions to save WITHOUT refreshing the whole page (no keyboard close)
+    function quickSave(id, val) {
         localStorage.setItem(id, val);
-        render();
     }
 
-    function saveHifdh(id, val) {
+    function saveHifdhLive(id, val) {
         localStorage.setItem(id, val);
-        render();
+        updateProgressBars(null, val); // Update bar without redrawing inputs
     }
 
-    function updateProgress(count, hifdhVal) {
-        const percent = Math.round((count / totalCheckboxes) * 100);
-        document.getElementById('progress-fill').style.width = percent + '%';
-        document.getElementById('progress-percent').innerText = percent + '% Complete';
+    function saveDataCheckbox(id, val) {
+        localStorage.setItem(id, val);
+        render(); // Checkboxes can redraw because they don't use keyboard
+    }
 
-        const hPercent = Math.min(Math.max(hifdhVal, 0), 100);
-        document.getElementById('hifdh-fill').style.width = hPercent + '%';
-        document.getElementById('hifdh-percent').innerText = hPercent + '% Goal Reached';
+    function updateProgressBars(count, hifdhVal) {
+        if (count !== null) {
+            const percent = Math.round((count / totalCheckboxes) * 100);
+            document.getElementById('progress-fill').style.width = percent + '%';
+            document.getElementById('progress-percent').innerText = percent + '% Complete';
+        }
+
+        if (hifdhVal !== undefined) {
+            const hPercent = Math.min(Math.max(hifdhVal, 0), 100);
+            document.getElementById('hifdh-fill').style.width = hPercent + '%';
+            document.getElementById('hifdh-percent').innerText = hPercent + '% Goal Reached';
+        }
     }
 </script>
 </body>
